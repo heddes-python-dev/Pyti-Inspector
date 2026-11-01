@@ -1,0 +1,55 @@
+name: Fehler melden
+description: Einen reproduzierbaren Fehler im Pyti Inspector melden
+title: "[Fehler]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte teile keine Zugangsdaten, Tokens oder persönlichen Daten.
+  - type: textarea
+    id: description
+    attributes:
+      label: Fehlerbeschreibung
+      description: Was ist passiert?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Schritte zur Reproduktion
+      placeholder: |
+        1. Inspector starten
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Inspector-Version
+      description: Siehe VERSION.
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python-Version
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Betriebssystem
+      options:
+        - Linux
+        - Windows
+        - macOS
+        - Sonstiges
+    validations:
+      required: true
