@@ -21,6 +21,20 @@ Demo-Sender unabhängig ausprobieren.
 - [Mitwirken](CONTRIBUTING.md): lokale Entwicklung, Tests und Pull Requests
 - [Sicherheitsrichtlinie](SECURITY.md): Umgang mit Telemetrie und Meldungen
 
+## Good First Issues
+
+Du möchtest mithelfen? Diese kleinen, abgegrenzten Aufgaben sind ein guter
+Einstieg. Auf GitHub findest du weitere Tickets mit dem Label
+[good first issue](https://github.com/heddes-python-dev/Pyti-Inspector/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+- [Event-Typen in der Timeline filtern](https://github.com/heddes-python-dev/Pyti-Inspector/issues/1)
+- [Timeline leeren, ohne die Verbindung zu trennen](https://github.com/heddes-python-dev/Pyti-Inspector/issues/2)
+- [Fehlerhafte und zu große Telemetrie-Nachrichten testen](https://github.com/heddes-python-dev/Pyti-Inspector/issues/3)
+- [Screenshot und Demo-Anleitung ergänzen](https://github.com/heddes-python-dev/Pyti-Inspector/issues/4)
+
+Lies vor deinem Beitrag den [Mitwirkungsleitfaden](CONTRIBUTING.md). Kommentiere
+das gewünschte Issue vor Beginn, damit andere sehen, dass du daran arbeitest.
+
 ## Starten
 
 Benötigt Python 3.10+ und PySide6:
