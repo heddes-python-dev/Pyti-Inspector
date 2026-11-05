@@ -96,8 +96,11 @@ class PytiAdapterTests(unittest.TestCase):
                 self.assertEqual(interpreter.roboter.x, 1)
                 self.assertEqual(runtime.read_text(encoding="utf-8"), original_path)
                 received = []
-                while not events.empty():
-                    received.append(events.get_nowait())
+                while True:
+                    event = events.get(timeout=2)
+                    received.append(event)
+                    if event["type"] == "session_end":
+                        break
                 kinds = [event["type"] for event in received]
                 self.assertIn("session_start", kinds)
                 self.assertIn("line", kinds)
@@ -109,6 +112,29 @@ class PytiAdapterTests(unittest.TestCase):
                 action = next(event for event in received if event["type"] == "action")
                 self.assertEqual(action["state"]["x"], 1)
                 self.assertEqual(action["variables"]["steps"], 0)
+
+                handler = interpreter.telemetry_handler
+                self.assertTrue(handler("session_start", message="sandbox run"))
+                self.assertTrue(handler(
+                    "line", line=2, variables={"steps": 0}
+                ))
+                self.assertTrue(handler(
+                    "action", name="frontClear", result=True,
+                    line=2, variables={"steps": 0},
+                ))
+                self.assertTrue(handler(
+                    "error", line=2, message="ValueError: bad",
+                    traceback="ValueError: bad",
+                ))
+                self.assertTrue(handler("session_end", message="Skript beendet"))
+                sandbox_events = [events.get(timeout=2) for _ in range(5)]
+                self.assertEqual(
+                    [event["type"] for event in sandbox_events],
+                    ["session_start", "line", "sensor", "error", "session_end"],
+                )
+                self.assertEqual(sandbox_events[2]["state"]["x"], 1)
+                self.assertEqual(sandbox_events[3]["line"], 2)
+
                 self.assertFalse(interpreter.interpretiere_und_fuehre_aus(
                     "raise ValueError('script failure')\n"
                 ))

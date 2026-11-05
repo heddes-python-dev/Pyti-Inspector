@@ -3,6 +3,7 @@
 import sys
 import threading
 import traceback
+from functools import wraps
 from pathlib import Path
 
 from telemetry_client import TelemetryClient
@@ -20,6 +21,72 @@ SENSORS = {
 }
 
 
+def _sandbox_telemetry(interpreter, client_factory):
+    client = None
+
+    def close_client():
+        nonlocal client
+        if client is not None:
+            try:
+                client.close()
+            except OSError:
+                pass
+            client = None
+
+    def send(event_type, **payload):
+        nonlocal client
+        if event_type == "session_start":
+            close_client()
+            try:
+                client = client_factory()
+                client.connect()
+                client.send("session_start", message=payload.get("message", ""))
+            except (OSError, RuntimeError, ValueError) as error:
+                close_client()
+                print(
+                    "Pyti Inspector nicht erreichbar; "
+                    f"Pyti läuft ohne Telemetrie: {error}"
+                )
+                return False
+            return True
+        if client is None:
+            return False
+        try:
+            if event_type == "line":
+                client.send("line", **payload)
+            elif event_type == "action":
+                client.send(
+                    "sensor" if payload["name"] in SENSORS else "action",
+                    name=payload["name"],
+                    result=json_value(payload.get("result")),
+                    **({"line": payload["line"]} if payload.get("line") else {}),
+                    state=state(interpreter),
+                    variables=payload.get("variables", {}),
+                )
+            elif event_type == "error":
+                client.send(
+                    "error",
+                    message=payload["message"],
+                    traceback=payload.get("traceback", payload["message"]),
+                    **({"line": payload["line"]} if payload.get("line") else {}),
+                )
+            elif event_type == "session_end":
+                client.send(
+                    "session_end",
+                    message=payload.get("message", "Skript beendet"),
+                    state=state(interpreter),
+                )
+        except (OSError, RuntimeError, ValueError, KeyError) as error:
+            print(f"Pyti-Inspector-Telemetrie gestoppt: {error}")
+            close_client()
+            return False
+        if event_type == "session_end":
+            close_client()
+        return True
+
+    return send
+
+
 def attach_pyti(pyti_root, client_factory=TelemetryClient):
     """Patch the imported interpreter class in memory and return its restore hook."""
     root = Path(pyti_root).resolve()
@@ -29,6 +96,14 @@ def attach_pyti(pyti_root, client_factory=TelemetryClient):
     from pyti_app.script_runtime import BefehlsInterpreter
 
     original_run = BefehlsInterpreter.interpretiere_und_fuehre_aus
+    original_init = BefehlsInterpreter.__init__
+
+    @wraps(original_init)
+    def instrumented_init(interpreter, *args, **kwargs):
+        original_init(interpreter, *args, **kwargs)
+        interpreter.telemetry_handler = _sandbox_telemetry(
+            interpreter, client_factory
+        )
 
     def instrumented_run(
         interpreter, script_text, *, ausfuehren=None, abbruch_event=None
@@ -134,9 +209,11 @@ def attach_pyti(pyti_root, client_factory=TelemetryClient):
             client.close()
 
     BefehlsInterpreter.interpretiere_und_fuehre_aus = instrumented_run
+    BefehlsInterpreter.__init__ = instrumented_init
 
     def restore():
         BefehlsInterpreter.interpretiere_und_fuehre_aus = original_run
+        BefehlsInterpreter.__init__ = original_init
         if str(root) in sys.path:
             sys.path.remove(str(root))
 

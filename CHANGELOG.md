@@ -2,6 +2,11 @@
 
 Bemerkenswerte Änderungen des Pyti Inspectors werden hier dokumentiert.
 
+## Unreleased
+
+- Pyti-1.5+-Sandbox-Ereignisse über den externen Launcher empfangen, ohne
+  Netzwerkzugriff für den isolierten Skriptprozess.
+
 ## [0.1.0] - 2026-11-01
 
 ### Hinzugefügt
