@@ -40,7 +40,11 @@ def _sandbox_telemetry(interpreter, client_factory):
             try:
                 client = client_factory()
                 client.connect()
-                client.send("session_start", message=payload.get("message", ""))
+                client.send(
+                    "session_start",
+                    message=payload.get("message", ""),
+                    state=state(interpreter),
+                )
             except (OSError, RuntimeError, ValueError) as error:
                 close_client()
                 print(
@@ -164,7 +168,11 @@ def attach_pyti(pyti_root, client_factory=TelemetryClient):
             )
             return result
 
-        send("session_start", message="Pyti-Skript gestartet")
+        send(
+            "session_start",
+            message="Pyti-Skript gestartet",
+            state=state(interpreter),
+        )
         line_tracer = PytiLineTracer(send)
         line_tracer.install()
         interpreter.aktion_ausfuehren = traced_action

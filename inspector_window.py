@@ -40,6 +40,9 @@ class InspectorWindow(QMainWindow):
         self.started_at = None
         self.event_count = 0
         self.command_count = 0
+        self.x_steps = 0
+        self.y_steps = 0
+        self._last_position = None
         self.events = deque(maxlen=1000)
         self.current_variables = {}
         self._build_ui()
@@ -60,11 +63,13 @@ class InspectorWindow(QMainWindow):
         self.endpoint = QLabel()
         self.steps = QLabel("Events: 0")
         self.commands = QLabel("Aktionen: 0")
+        self.x_steps_label = QLabel("X steps: 0")
+        self.y_steps_label = QLabel("Y steps: 0")
         self.rate = QLabel("Rate: 0.0/s")
         self.elapsed = QLabel("Laufzeit: 0.0 s")
         for label in (
             self.status, self.endpoint, self.steps, self.commands,
-            self.rate, self.elapsed,
+            self.x_steps_label, self.y_steps_label, self.rate, self.elapsed,
         ):
             metrics.addWidget(label)
         layout.addLayout(metrics)
@@ -96,6 +101,9 @@ class InspectorWindow(QMainWindow):
             self.started_at = event.get("timestamp", time.time())
             self.command_count = 0
             self.event_count = 0
+            self.x_steps = 0
+            self.y_steps = 0
+            self._last_position = self._position(event.get("state"))
             self.events.clear()
             self.current_variables.clear()
             self.event_table.setRowCount(0)
@@ -105,6 +113,14 @@ class InspectorWindow(QMainWindow):
             self.command_count += 1
         self.steps.setText(f"Events: {self.event_count}")
         self.commands.setText(f"Aktionen/Sensoren: {self.command_count}")
+        position = self._position(event.get("state"))
+        if position is not None:
+            if self._last_position is not None:
+                self.x_steps += abs(position[0] - self._last_position[0])
+                self.y_steps += abs(position[1] - self._last_position[1])
+            self._last_position = position
+        self.x_steps_label.setText(f"X steps: {self.x_steps}")
+        self.y_steps_label.setText(f"Y steps: {self.y_steps}")
         if self.started_at is not None:
             duration = max(0, time.time() - self.started_at)
             self.elapsed.setText(f"Laufzeit: {duration:.1f} s")
@@ -141,6 +157,15 @@ class InspectorWindow(QMainWindow):
             self.traceback.setPlainText(
                 event.get("traceback") or event.get("message", "Unbekannter Fehler")
             )
+
+    @staticmethod
+    def _position(state):
+        if not isinstance(state, dict):
+            return None
+        x, y = state.get("x"), state.get("y")
+        if type(x) is not int or type(y) is not int:
+            return None
+        return x, y
 
     def _show_variables(self, variables):
         self.variable_table.setRowCount(len(variables))

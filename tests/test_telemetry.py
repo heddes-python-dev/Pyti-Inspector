@@ -87,6 +87,40 @@ class TelemetryProtocolTests(unittest.TestCase):
         finally:
             window.close()
 
+    def test_dashboard_counts_steps_on_both_axes_and_resets_each_session(self):
+        window = InspectorWindow()
+        try:
+            now = time.time()
+            window._show_event({
+                "type": "session_start",
+                "timestamp": now,
+                "state": {"x": 1, "y": 2},
+            })
+            window._show_event({
+                "type": "action",
+                "name": "moveForward",
+                "timestamp": now,
+                "state": {"x": 3, "y": 2},
+            })
+            window._show_event({
+                "type": "action",
+                "name": "moveForward",
+                "timestamp": now,
+                "state": {"x": 3, "y": 5},
+            })
+            self.assertEqual(window.x_steps_label.text(), "X steps: 2")
+            self.assertEqual(window.y_steps_label.text(), "Y steps: 3")
+
+            window._show_event({
+                "type": "session_start",
+                "timestamp": now,
+                "state": {"x": 7, "y": 8},
+            })
+            self.assertEqual(window.x_steps_label.text(), "X steps: 0")
+            self.assertEqual(window.y_steps_label.text(), "Y steps: 0")
+        finally:
+            window.close()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -103,6 +103,11 @@ class PytiAdapterTests(unittest.TestCase):
                         break
                 kinds = [event["type"] for event in received]
                 self.assertIn("session_start", kinds)
+                session_start = next(
+                    event for event in received if event["type"] == "session_start"
+                )
+                self.assertEqual(session_start["state"]["x"], 0)
+                self.assertEqual(session_start["state"]["y"], 0)
                 self.assertIn("line", kinds)
                 self.assertIn("sensor", kinds)
                 self.assertIn("action", kinds)

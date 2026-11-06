@@ -4,8 +4,18 @@ Bemerkenswerte Änderungen des Pyti Inspectors werden hier dokumentiert.
 
 ## Unreleased
 
+## [0.2.0] - 2026-11-06
+
+### Hinzugefügt
+
 - Pyti-1.5+-Sandbox-Ereignisse über den externen Launcher empfangen, ohne
   Netzwerkzugriff für den isolierten Skriptprozess.
+- X- und Y-Bewegungsschritte im Dashboard getrennt anzeigen.
+
+### Verbessert
+
+- Bewegungsmetriken beginnen für jede Sitzung bei null und zählen Sprünge
+  anhand ihrer Koordinatendifferenz.
 
 ## [0.1.0] - 2026-11-01
 

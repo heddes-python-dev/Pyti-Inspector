@@ -78,7 +78,8 @@ Schritt-für-Schritt-Anweisungen stehen im [Benutzerhandbuch](USER_GUIDE.md).
 
 - Echtzeit-Eventliste mit Programmzeile, Aktion/Sensor und Rückgabewert
 - Variablen-Watcher für die zuletzt gemeldeten JSON-serialisierbaren Werte
-- Event- und Aktionszähler, Laufzeit und Fehler-/Traceback-Anzeige
+- Event-, Aktions-, X- und Y-Bewegungsschrittzähler, Laufzeit und
+  Fehler-/Traceback-Anzeige
 - Bis zu 1000 letzte Events im Inspector-Fenster
 - JSON-Lines-Protokoll über TCP, ausschließlich an `127.0.0.1`
 - Keine Änderung oder Abhängigkeit von der Pyti-Lernumgebung

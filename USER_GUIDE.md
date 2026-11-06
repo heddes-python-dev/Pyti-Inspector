@@ -80,7 +80,9 @@ nicht erreichbar, läuft Pyti ohne Telemetrie weiter.
 
 - **Events:** Zeit, Eventtyp, Aktion/Sensor, Ergebnis und Python-Zeile.
 - **Variablen:** zuletzt vom Sender gemeldete JSON-Werte und Zustandsfelder.
-- **Metriken:** Eventzahl, Aktionen/Sensoren, Laufzeit und Frequenz.
+- **Metriken:** Eventzahl, Aktionen/Sensoren, X- und Y-Bewegungsschritte,
+  Laufzeit und Frequenz. Sprünge zählen entsprechend der zurückgelegten
+  Koordinatendifferenz; jede Sitzung beginnt bei null.
 - **Fehler:** Fehlermeldung und vom Sender gelieferte Traceback-Informationen.
 
 Das Dashboard hält höchstens 1000 Events. Der Inspector pausiert die
